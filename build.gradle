@@ -131,6 +131,12 @@ repositories {
     maven { // Registrate
         url "http://maven.tterrag.com/"
     }
+    maven {
+        url "https://maven.blamejared.com"
+    }
+    maven {
+        url "http://mmd.blamejared.com/"
+    }
 }
 
 dependencies {
@@ -139,6 +145,9 @@ dependencies {
     implementation fg.deobf("mezz.jei:jei-${jei_version}")
 
     implementation fg.deobf("curse.maven:create-328085:${create_file_id}")
+    compile fg.deobf("com.blamejared.crafttweaker:CraftTweaker-${crafttweaker_version}")
+    compile fg.deobf("com.blamejared.contenttweaker:ContentTweaker-${contenttweaker_version}")
+    compile fg.deobf("net.darkhax.openloader:OpenLoader-${openloader_version}")
 
 	def registrate = "com.tterrag.registrate:Registrate:MC${registrate_version}"
     implementation fg.deobf(registrate)

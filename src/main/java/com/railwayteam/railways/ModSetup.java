@@ -3,6 +3,7 @@ package com.railwayteam.railways;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.railwayteam.railways.blocks.*;
+import com.railwayteam.railways.conductortweaker.ConductorTweakerSetup;
 import com.railwayteam.railways.entities.SteadyMinecartEntity;
 import com.railwayteam.railways.entities.conductor.ConductorEntity;
 import com.railwayteam.railways.entities.conductor.ConductorRenderer;
@@ -40,6 +41,7 @@ import net.minecraftforge.client.model.generators.ConfiguredModel;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 
@@ -407,6 +409,10 @@ public class ModSetup {
             .lang("Handcar")
             .properties(p -> p.size(2, 1.7F))
             .register();
+
+    if(ModList.get().isLoaded("contenttweaker")) {
+      ConductorTweakerSetup.register(reg);
+    }
   }
 
   @OnlyIn(value=Dist.CLIENT)

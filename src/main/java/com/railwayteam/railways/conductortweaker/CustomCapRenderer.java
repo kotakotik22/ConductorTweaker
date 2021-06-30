@@ -1,36 +1,38 @@
-package com.railwayteam.railways.entities.conductor;
+package com.railwayteam.railways.conductortweaker;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import com.railwayteam.railways.items.engineers_cap.EngineersCapModel;
+import com.railwayteam.railways.conductortweaker.conductor.ConductorBuilder;
+import com.railwayteam.railways.entities.conductor.ConductorEntity;
+import com.railwayteam.railways.entities.conductor.ConductorEntityModel;
+import com.railwayteam.railways.entities.conductor.EngineersCapLayer;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.IEntityRenderer;
-import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.entity.passive.SheepEntity;
 import net.minecraft.item.DyeColor;
 import net.minecraft.util.ResourceLocation;
 
-public class EngineersCapLayer extends LayerRenderer<ConductorEntity, ConductorEntityModel> {
-    public final EngineersCapModel capModel = new EngineersCapModel(true);
+public class CustomCapRenderer extends EngineersCapLayer {
+    public final ConductorBuilder builder;
 
-    public EngineersCapLayer(IEntityRenderer<ConductorEntity, ConductorEntityModel> p_i50926_1_) {
+    public CustomCapRenderer(IEntityRenderer<ConductorEntity, ConductorEntityModel> p_i50926_1_, ConductorBuilder builder) {
         super(p_i50926_1_);
+        this.builder = builder;
     }
 
     @Override
     public void render(MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int packedLight, ConductorEntity entity, float p_225628_5_, float p_225628_6_, float p_225628_7_, float p_225628_8_, float p_225628_9_, float p_225628_10_) {
-//        renderModel(matrixStack, renderTypeBuffer, packedLight, getEntityModel(), entity);
         capModel.setLivingAnimations(entity, p_225628_5_, p_225628_6_, p_225628_7_);
         capModel.setAngles(entity, p_225628_5_, p_225628_6_, p_225628_8_, p_225628_9_, p_225628_10_);
 
         IVertexBuilder ivertexbuilder = renderTypeBuffer.getBuffer(RenderType.getEntityCutoutNoCull
-                (getCapTextureRainbowSupport(entity)));
+                (getTextureRainbowSupport(entity)));
         float r = 1;
         float g = 1;
         float b = 1;
-        if (entity.shouldBeRainbow()) {
+        if (shouldBeRainbow(entity)) {
             int i = entity.ticksExisted / 25 + entity.getEntityId();
             int j = DyeColor.values().length;
             int k = i % j;
@@ -41,25 +43,33 @@ public class EngineersCapLayer extends LayerRenderer<ConductorEntity, ConductorE
             r = afloat1[0] * (1.0F - f3) + afloat2[0] * f3;
             g = afloat1[1] * (1.0F - f3) + afloat2[1] * f3;
             b = afloat1[2] * (1.0F - f3) + afloat2[2] * f3;
+        } else if(!builder.capTexture.useTexture) {
+            r = builder.capTexture.colorRed;
+            g = builder.capTexture.colorGreen;
+            b = builder.capTexture.colorBlue;
         }
         capModel.render(matrixStack, ivertexbuilder, packedLight, OverlayTexture.DEFAULT_UV, r, g, b, 1.0F);
-//        render(this.getEntityModel(), getEntityModel(), getCapTexture(entity), matrixStack, renderTypeBuffer, packedLight, entity, p_225628_5_, p_225628_6_, p_225628_8_, p_225628_9_, p_225628_10_, p_225628_7_, p_225628_8_, p_225628_9_, p_225628_10_);
     }
 
-    public static ResourceLocation getCapTexture(String color) {
-        return new ResourceLocation("railways", "textures/models/armor/" + color + "_golem_hat.png");
+    public boolean shouldBeRainbow(ConductorEntity entity) {
+        return (entity.shouldBeRainbow() && builder.capTexture.jeb) || builder.capTexture.rainbow;
     }
 
-    public static ResourceLocation getCapTexture(DyeColor color) {
-        return getCapTexture(color.getTranslationKey());
+    public ResourceLocation getTexture(String color) {
+        ResourceLocation r = builder.capTexture.texture;
+        r = new ResourceLocation(r.getNamespace(), r.getPath().replace("-color-", color));
+        return r;
     }
 
-    public static ResourceLocation getCapTexture(ConductorEntity entity) {
-        return getCapTexture(entity.getColor());
+    public ResourceLocation getTexture(DyeColor color) {
+        return getTexture(color.getTranslationKey());
     }
 
-    public static ResourceLocation getCapTextureRainbowSupport(ConductorEntity entity) {
-        return entity.shouldBeRainbow() ? getCapTexture(DyeColor.WHITE) : getCapTexture(entity);
+    public ResourceLocation getTexture2(ConductorEntity entity) {
+        return getTexture(entity.getColor());
+    }
+
+    public ResourceLocation getTextureRainbowSupport(ConductorEntity entity) {
+        return shouldBeRainbow(entity) ? getCapTexture(DyeColor.WHITE) : getTexture2(entity);
     }
 }
-

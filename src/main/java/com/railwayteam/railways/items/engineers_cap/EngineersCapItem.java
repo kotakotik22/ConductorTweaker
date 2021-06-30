@@ -17,6 +17,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
+import java.util.function.BiPredicate;
 
 public class EngineersCapItem extends ArmorItem {
     static class EngineerCapArmorMaterial implements IArmorMaterial {
@@ -93,13 +94,17 @@ public class EngineersCapItem extends ArmorItem {
         return (A) new EngineersCapModel();
     }
 
-    public static BlockPos[] getBlocksToRemove(World world, BlockPos pos) {
+    public static BlockPos[] getBlocksToRemove(World world, BlockPos pos, BiPredicate<World, BlockPos> isCasing) {
         BlockState state = world.getBlockState(pos);
-        if(!isCasing(state)) return new BlockPos[0];
+        if(!isCasing.test(world, pos)) return new BlockPos[0];
         BlockPos otherBlock = pos.up();
-        if(!isCasing(world, otherBlock)) otherBlock = pos.down();
-        if(!isCasing(world, otherBlock)) return new BlockPos[0];
+        if(!isCasing.test(world, otherBlock)) otherBlock = pos.down();
+        if(!isCasing.test(world, otherBlock)) return new BlockPos[0];
         return new BlockPos[]{pos, otherBlock};
+    }
+
+    public static BlockPos[] getBlocksToRemove(World world, BlockPos pos) {
+        return getBlocksToRemove(world, pos, EngineersCapItem::isCasing);
     }
 
     public static BlockPos getLowest(BlockPos[] pos) {
